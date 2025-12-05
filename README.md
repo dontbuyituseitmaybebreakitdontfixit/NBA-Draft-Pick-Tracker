@@ -1,6 +1,8 @@
 All info sourced from 
 https://basketball.realgm.com/nba/draft/future_drafts/detailed
 
+<hr style="border: none; border-top: 3px solid #333;" />
+
 <div align="center">
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>

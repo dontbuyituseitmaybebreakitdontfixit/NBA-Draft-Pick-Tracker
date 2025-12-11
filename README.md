@@ -1,5 +1,6 @@
 All info sourced from 
 https://basketball.realgm.com/nba/draft/future_drafts/detailed
+https://en.wikipedia.org/wiki/2025_NBA_draft
 
 <hr style="border: none; border-top: 3px solid #333;" />
 

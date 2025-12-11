@@ -1,3 +1,4 @@
+
 export enum TradeType {
   OWN = 'OWN',
   TRADED = 'TRADED',
@@ -32,6 +33,7 @@ export interface DraftPick {
   splitOwners?: string[]; // IDs for complex conditional splits
   details: string; // Text description
   isStepienRisk?: boolean; // AI calculated risk
+  player?: string; // Name of drafted player (for past drafts)
 }
 
 export interface AiAnalysisResponse {

@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { TEAMS, YEARS } from './constants';
+import { TEAMS, YEARS, PAST_YEARS } from './constants';
 import { MAJOR_TRADES } from './assets/tradeScenarios';
 import { DraftPick } from './types';
 import TeamLogo from './components/TeamLogo';
@@ -7,8 +8,9 @@ import TeamRow from './components/TeamRow';
 import AiModal from './components/AiModal';
 import { askGeneralQuestion } from './services/geminiService';
 import { fetchDraftData } from './services/googleSheetService';
+import { fetchPastDraftData } from './services/pastDraftService';
 
-type Tab = 'draft_picks' | 'trades' | string; // string will be teamId
+type Tab = 'draft_picks' | 'draft_history' | 'trades' | string; // string will be teamId
 
 const App: React.FC = () => {
   const [selectedPick, setSelectedPick] = useState<DraftPick | null>(null);
@@ -17,20 +19,25 @@ const App: React.FC = () => {
   const [isAskingAi, setIsAskingAi] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('draft_picks');
   const [picksData, setPicksData] = useState<{ first: DraftPick[], second: DraftPick[] }>({ first: [], second: [] });
+  const [pastPicksData, setPastPicksData] = useState<{ first: DraftPick[], second: DraftPick[] }>({ first: [], second: [] });
   const [loading, setLoading] = useState(true);
 
   // Load Data on Mount
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { firstRound, secondRound } = await fetchDraftData();
-      setPicksData({ first: firstRound, second: secondRound });
+      const [future, past] = await Promise.all([
+          fetchDraftData(),
+          fetchPastDraftData()
+      ]);
+      setPicksData({ first: future.firstRound, second: future.secondRound });
+      setPastPicksData({ first: past.firstRound, second: past.secondRound });
       setLoading(false);
     };
     load();
   }, []);
 
-  // Maps for efficient Grid rendering
+  // Maps for efficient Future Grid rendering
   const picksMapFirst = useMemo(() => {
     const map = new Map<string, DraftPick>();
     picksData.first.forEach(pick => map.set(`${pick.originalOwnerId}-${pick.year}`, pick));
@@ -42,6 +49,13 @@ const App: React.FC = () => {
     picksData.second.forEach(pick => map.set(`${pick.originalOwnerId}-${pick.year}`, pick));
     return map;
   }, [picksData.second]);
+
+  // Maps for efficient Past Grid rendering
+  const pastPicksMapFirst = useMemo(() => {
+    const map = new Map<string, DraftPick>();
+    pastPicksData.first.forEach(pick => map.set(`${pick.originalOwnerId}-${pick.year}`, pick));
+    return map;
+  }, [pastPicksData.first]);
 
   // Helper to get ALL picks relevant to a specific team (Incoming + Own) for the Summary View
   const getTeamAssets = (teamId: string) => {
@@ -85,7 +99,7 @@ const App: React.FC = () => {
       setIsAskingAi(false);
   };
 
-  const renderMainGrid = () => (
+  const renderGrid = (years: number[], map: Map<string, DraftPick>, secondaryMap?: Map<string, DraftPick>) => (
     <div className="inline-block min-w-full align-middle">
       <table className="min-w-full border-separate border-spacing-0">
         <thead>
@@ -93,7 +107,7 @@ const App: React.FC = () => {
             <th scope="col" className="sticky-corner top-0 left-0 z-40 w-24 md:w-32 bg-slate-900 border-b border-r border-slate-700 p-4 text-left text-xs font-medium text-slate-400 uppercase tracking-wider shadow-lg">
               Team
             </th>
-            {YEARS.map(year => (
+            {years.map(year => (
               <th key={year} scope="col" className="sticky-col-header top-0 z-20 min-w-[100px] bg-slate-900 border-b border-slate-700 p-4 text-center text-sm font-bold text-slate-300">
                 {year}
               </th>
@@ -105,9 +119,9 @@ const App: React.FC = () => {
             <TeamRow 
               key={team.id}
               team={team}
-              years={YEARS}
-              picksMap={picksMapFirst}
-              secondaryPicksMap={picksMapSecond} // Triggers split view
+              years={years}
+              picksMap={map}
+              secondaryPicksMap={secondaryMap} // Triggers split view
               onPickClick={setSelectedPick}
             />
           ))}
@@ -317,6 +331,12 @@ const App: React.FC = () => {
                 >
                     Draft Picks
                 </button>
+                 <button 
+                    onClick={() => setActiveTab('draft_history')}
+                    className={`px-6 py-3 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors whitespace-nowrap ${activeTab === 'draft_history' ? 'border-green-500 text-white bg-slate-800' : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                >
+                    History
+                </button>
                 <button 
                     onClick={() => setActiveTab('trades')}
                     className={`px-6 py-3 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors whitespace-nowrap flex items-center space-x-2 ${activeTab === 'trades' ? 'border-purple-500 text-white bg-slate-800' : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
@@ -354,9 +374,10 @@ const App: React.FC = () => {
              </div>
         ) : (
             <>
-                {activeTab === 'draft_picks' && renderMainGrid()}
+                {activeTab === 'draft_picks' && renderGrid(YEARS, picksMapFirst, picksMapSecond)}
+                {activeTab === 'draft_history' && renderGrid(PAST_YEARS, pastPicksMapFirst)}
                 {activeTab === 'trades' && renderTradesContent()}
-                {activeTab !== 'draft_picks' && activeTab !== 'trades' && renderTeamView(activeTab)}
+                {activeTab !== 'draft_picks' && activeTab !== 'draft_history' && activeTab !== 'trades' && renderTeamView(activeTab)}
             </>
         )}
       </main>

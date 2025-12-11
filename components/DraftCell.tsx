@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { DraftPick, TradeType } from '../types';
 import TeamLogo from './TeamLogo';
@@ -25,7 +26,7 @@ const DraftCell: React.FC<DraftCellProps> = ({ pick, teamId, year, onClick, clas
   const handleClick = () => onClick(currentPick);
   
   // Base classes for cell content layout
-  const baseClasses = `w-full h-full flex flex-col items-center justify-center relative transition-all cursor-pointer group overflow-hidden ${className}`;
+  const baseClasses = `w-full h-full flex flex-col items-center justify-center relative transition-all cursor-pointer group overflow-hidden px-1 ${className}`;
 
   // Helper to render Round Label
   const RoundLabel = () => (
@@ -34,7 +35,34 @@ const DraftCell: React.FC<DraftCellProps> = ({ pick, teamId, year, onClick, clas
     ) : null
   );
 
-  // -- Render Logic based on Status --
+  // -- HISTORICAL PLAYER VIEW --
+  if (currentPick.player) {
+      const isTraded = currentPick.status === TradeType.TRADED && currentPick.currentOwnerId && currentPick.currentOwnerId !== teamId;
+      
+      if (isTraded) {
+          return (
+            <div onClick={handleClick} className={`${baseClasses} bg-red-900/10 border-l-2 border-l-red-500 hover:bg-red-900/20`}>
+                <RoundLabel />
+                <span className="text-[10px] font-bold text-slate-200 text-center leading-tight line-clamp-2 z-10">{currentPick.player}</span>
+                <div className="flex items-center space-x-1 mt-1 opacity-75">
+                    <span className="text-[7px] text-red-300 uppercase">Selected By</span>
+                    <TeamLogo teamId={currentPick.currentOwnerId!} size="sm" className="w-4 h-4 text-[6px]" />
+                </div>
+            </div>
+          );
+      }
+      
+      return (
+        <div onClick={handleClick} className={`${baseClasses} bg-slate-800/30 hover:bg-slate-700/50`}>
+             <RoundLabel />
+             <span className="text-[10px] font-bold text-slate-200 text-center leading-tight line-clamp-2 group-hover:text-white">{currentPick.player}</span>
+             <TeamLogo teamId={teamId} size="sm" className="absolute bottom-1 right-1 opacity-10 w-8 h-8 text-[8px]" />
+        </div>
+      );
+  }
+
+
+  // -- FUTURE ASSET VIEW --
 
   // 1. TRADED OUT
   if (currentPick.status === TradeType.TRADED && currentPick.currentOwnerId) {
@@ -111,7 +139,7 @@ const DraftCell: React.FC<DraftCellProps> = ({ pick, teamId, year, onClick, clas
     );
   }
 
-  // 5. OWN (Standard)
+  // 5. OWN (Standard Future)
   return (
     <div onClick={handleClick} className={`${baseClasses} bg-slate-800/30 hover:bg-slate-700/50`}>
         <RoundLabel />

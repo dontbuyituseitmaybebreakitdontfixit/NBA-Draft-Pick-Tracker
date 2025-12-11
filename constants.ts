@@ -1,3 +1,4 @@
+
 import { Team } from './types';
 
 export const GOOGLE_SHEET_CSV_URL = ''; // Put your published Google Sheet CSV URL here
@@ -15,7 +16,7 @@ export const TEAMS: Record<string, Team> = {
   GSW: { id: 'GSW', city: 'Golden State', name: 'Warriors', abbrev: 'GSW', primaryColor: '#1D428A', secondaryColor: '#FFC72C' },
   HOU: { id: 'HOU', city: 'Houston', name: 'Rockets', abbrev: 'HOU', primaryColor: '#CE1141', secondaryColor: '#000000' },
   IND: { id: 'IND', city: 'Indiana', name: 'Pacers', abbrev: 'IND', primaryColor: '#002D62', secondaryColor: '#FDBB30' },
-  LAC: { id: 'LAC', city: 'LA', name: 'Clippers', abbrev: 'LAC', primaryColor: '#C8102E', secondaryColor: '#1D428A' },
+  LAC: { id: 'LAC', city: 'LA', name: 'Clippers', abbrev: 'LAC', primaryColor: '#C8102E', secondaryColor: '#1D42BA' },
   LAL: { id: 'LAL', city: 'Los Angeles', name: 'Lakers', abbrev: 'LAL', primaryColor: '#552583', secondaryColor: '#FDB927' },
   MEM: { id: 'MEM', city: 'Memphis', name: 'Grizzlies', abbrev: 'MEM', primaryColor: '#5D76A9', secondaryColor: '#12173F' },
   MIA: { id: 'MIA', city: 'Miami', name: 'Heat', abbrev: 'MIA', primaryColor: '#98002E', secondaryColor: '#F9A01B' },
@@ -35,4 +36,5 @@ export const TEAMS: Record<string, Team> = {
   WAS: { id: 'WAS', city: 'Washington', name: 'Wizards', abbrev: 'WAS', primaryColor: '#002B5C', secondaryColor: '#E31837' },
 };
 
-export const YEARS = [2025, 2026, 2027, 2028, 2029, 2030, 2031];
+export const YEARS = [2026, 2027, 2028, 2029, 2030, 2031];
+export const PAST_YEARS = [2025, 2024, 2023, 2022, 2021, 2020];
